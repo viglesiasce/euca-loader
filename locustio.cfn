@@ -59,12 +59,11 @@
     }, 
     "Parameters": {
         "CredentialURL": {
-            "Default": "http://10.111.5.155:8773/services/Walrus/locust/admin.zip", 
             "Description": "URL used to download the eucalyptus credentials", 
             "Type": "String"
         }, 
         "DefaultDashboard": {
-            "Default": "https://gist.githubusercontent.com/viglesiasce/78ba0b02aa47a6ef16c4/raw/grafana-locust.json", 
+            "Default": "https://raw.githubusercontent.com/viglesiasce/euca-loader/master/grafana-dashboard.json", 
             "Description": "Default dashboard to bring up in Grafana", 
             "Type": "String"
         }, 
@@ -86,7 +85,7 @@
             "Type": "String"
         }, 
         "GrafanaConfig": {
-            "Default": "https://gist.githubusercontent.com/viglesiasce/ca267764a190e56b8be7/raw/grafana_config.js", 
+            "Default": "https://raw.githubusercontent.com/viglesiasce/euca-loader/master/grafana-config.js", 
             "Description": "Grafana config.json URL", 
             "Type": "String"
         }, 
@@ -95,7 +94,7 @@
             "Type": "String"
         }, 
         "ScriptURL": {
-            "Default": "https://gist.githubusercontent.com/viglesiasce/2dd2792025ae62e32a12/raw/locustfile.py", 
+            "Default": "https://raw.githubusercontent.com/viglesiasce/euca-loader/master/locustfile.py", 
             "Description": "URL used to download the locustfile", 
             "Type": "String"
         }

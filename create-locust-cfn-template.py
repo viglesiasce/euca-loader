@@ -17,7 +17,7 @@ script_url = template.add_parameter(Parameter(
     "ScriptURL",
     Description="URL used to download the locustfile",
     Type="String",
-    Default="https://gist.githubusercontent.com/viglesiasce/2dd2792025ae62e32a12/raw/locustfile.py"
+    Default="https://raw.githubusercontent.com/viglesiasce/euca-loader/master/locustfile.py"
 ))
 desired_capacity = template.add_parameter(Parameter(
     "DesiredCapacity",
@@ -30,8 +30,7 @@ desired_capacity = template.add_parameter(Parameter(
 creds_url = template.add_parameter(Parameter(
     "CredentialURL",
     Description="URL used to download the eucalyptus credentials",
-    Type="String",
-    Default="http://10.111.5.155:8773/services/Walrus/locust/admin.zip"
+    Type="String"
 ))
 eutester_branch = template.add_parameter(Parameter(
     "EutesterBranch",
@@ -49,13 +48,13 @@ default_dashboard = template.add_parameter(Parameter(
     "DefaultDashboard",
     Description="Default dashboard to bring up in Grafana",
     Type="String",
-    Default="https://gist.githubusercontent.com/viglesiasce/78ba0b02aa47a6ef16c4/raw/grafana-locust.json"
+    Default="https://raw.githubusercontent.com/viglesiasce/euca-loader/master/grafana-dashboard.json"
 ))
 grafana_config = template.add_parameter(Parameter(
     "GrafanaConfig",
     Description="Grafana config.json URL",
     Type="String",
-    Default="https://gist.githubusercontent.com/viglesiasce/ca267764a190e56b8be7/raw/grafana_config.js"
+    Default="https://raw.githubusercontent.com/viglesiasce/euca-loader/master/grafana-config.js"
 ))
 
 template.add_mapping('RegionMap', {
