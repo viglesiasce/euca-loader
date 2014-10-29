@@ -49,12 +49,12 @@
           "options": false,
           "legend": {
             "show": true,
-            "values": false,
-            "min": false,
-            "max": false,
-            "current": false,
+            "values": true,
+            "min": true,
+            "max": true,
+            "current": true,
             "total": false,
-            "avg": false
+            "avg": true
           },
           "interactive": true,
           "legend_counts": true,
@@ -210,6 +210,6 @@
     "list": [],
     "enable": false
   },
-  "refresh": "10s",
+  "refresh": "5s",
   "version": 6
 }

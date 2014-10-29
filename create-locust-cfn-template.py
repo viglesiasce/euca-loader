@@ -6,12 +6,16 @@ import troposphere.autoscaling as autoscaling
 
 
 template = Template()
-
+image_id = template.add_parameter(Parameter(
+    "ImageID",
+    Description="Image ID to run instance with",
+    Type="String"
+))
 keyname_param = template.add_parameter(Parameter(
     "KeyName",
     Description="Name of an existing EC2 KeyPair to enable SSH "
                 "access to the instance",
-    Type="String",
+    Type="String"
 ))
 script_url = template.add_parameter(Parameter(
     "ScriptURL",
@@ -57,9 +61,6 @@ grafana_config = template.add_parameter(Parameter(
     Default="https://raw.githubusercontent.com/viglesiasce/euca-loader/master/grafana-config.js"
 ))
 
-template.add_mapping('RegionMap', {
-    "qa-cloud":      {"AMI": "emi-F6144478"}
-})
 shared_userdata = Join("", ["""#!/bin/bash
 LOG_FILE=/mnt/locust.log
 mkfs.ext4 -F /dev/vdb
@@ -112,7 +113,7 @@ locust --master --logfile=$LOG_FILE
 '''])
 master = template.add_resource(ec2.Instance(
     "LocustMaster",
-    ImageId=FindInMap("RegionMap", Ref("AWS::Region"), "AMI"),
+    ImageId=Ref(image_id),
     InstanceType="m1.small",
     KeyName=Ref(keyname_param),
     SecurityGroups=["default"],
@@ -126,7 +127,7 @@ locust --slave --master-host=$MASTER_IP --logfile=$LOG_FILE
 """]))
 
 slave_lc  = template.add_resource(autoscaling.LaunchConfiguration("LocustSlave",
-                                                                  ImageId=FindInMap("RegionMap", Ref("AWS::Region"), "AMI"),
+                                                                  ImageId=Ref(image_id),
                                                                   InstanceType="m1.small",
                                                                   UserData=slave_userdata,
                                                                   KeyName=Ref(keyname_param)))
@@ -149,7 +150,7 @@ template.add_output(Output(
 template.add_output(Output(
     "GrafanaURL",
     Description="Web address for Real Time Graphs",
-    Value=Join("", ["Login here to start your test: http://", GetAtt(master, "PublicDnsName")])
+    Value=Join("", ["Login here for real time graphs: http://", GetAtt(master, "PublicDnsName")])
 ))
 
 print(template.to_json())

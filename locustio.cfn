@@ -1,11 +1,4 @@
 {
-    "Mappings": {
-        "RegionMap": {
-            "qa-cloud": {
-                "AMI": "emi-F6144478"
-            }
-        }
-    }, 
     "Outputs": {
         "GrafanaURL": {
             "Description": "Web address for Real Time Graphs", 
@@ -13,7 +6,7 @@
                 "Fn::Join": [
                     "", 
                     [
-                        "Login here to start your test: http://", 
+                        "Login here for real time graphs: http://", 
                         {
                             "Fn::GetAtt": [
                                 "LocustMaster", 
@@ -89,6 +82,10 @@
             "Description": "Grafana config.json URL", 
             "Type": "String"
         }, 
+        "ImageID": {
+            "Description": "Image ID to run instance with", 
+            "Type": "String"
+        }, 
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance", 
             "Type": "String"
@@ -103,13 +100,7 @@
         "LocustMaster": {
             "Properties": {
                 "ImageId": {
-                    "Fn::FindInMap": [
-                        "RegionMap", 
-                        {
-                            "Ref": "AWS::Region"
-                        }, 
-                        "AMI"
-                    ]
+                    "Ref": "ImageID"
                 }, 
                 "InstanceType": "m1.small", 
                 "KeyName": {
@@ -166,13 +157,7 @@
         "LocustSlave": {
             "Properties": {
                 "ImageId": {
-                    "Fn::FindInMap": [
-                        "RegionMap", 
-                        {
-                            "Ref": "AWS::Region"
-                        }, 
-                        "AMI"
-                    ]
+                    "Ref": "ImageID"
                 }, 
                 "InstanceType": "m1.small", 
                 "KeyName": {

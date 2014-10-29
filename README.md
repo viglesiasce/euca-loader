@@ -9,9 +9,9 @@ Requirements
 
 How To
 ==================
-- Create the stack by (minimally) passing in your ImageID, KeyName, and CredentialURL (this URL must be accessible by you instances in the cloud and contain the test account credentials)
+- Create the stack by (minimally) passing in your ImageID, KeyName, and CredentialURL (this URL must be accessible by your instances in the cloud and contain the test account credentials)
 
-```euform-create-stack --template-file locustio.cfn my-stack-name -p KeyName=vic -p CredentialURL='http://10.111.1.5:8773/services/objectstorage/creds/admin.zip'```
+```euform-create-stack --template-file locustio.cfn my-stack-name -p ImageID=emi-F6144478 -p KeyName=vic -p CredentialURL='http://10.111.1.5:8773/services/objectstorage/creds/admin.zip'```
 
 - Check that the stack is complete by doing ```euform-describe-stacks```
 - The system is now bootstrapping
