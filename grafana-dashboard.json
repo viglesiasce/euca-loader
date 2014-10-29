@@ -210,5 +210,6 @@
     "list": [],
     "enable": false
   },
+  "refresh": "10s",
   "version": 6
 }
