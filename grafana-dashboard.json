@@ -23,7 +23,7 @@
           "y-axis": true,
           "scale": 1,
           "y_formats": [
-            "short",
+            "ms",
             "short"
           ],
           "grid": {
@@ -87,7 +87,8 @@
           "annotate": {
             "enable": false
           },
-          "seriesOverrides": []
+          "seriesOverrides": [],
+          "links": []
         },
         {
           "error": false,
