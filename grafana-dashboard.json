@@ -7,6 +7,7 @@
   "timezone": "browser",
   "editable": true,
   "hideControls": false,
+  "sharedCrosshair": false,
   "rows": [
     {
       "title": "test",
@@ -16,7 +17,7 @@
       "panels": [
         {
           "id": 4,
-          "span": 12,
+          "span": 6,
           "type": "graph",
           "x-axis": true,
           "y-axis": true,
@@ -65,7 +66,8 @@
           "steppedLine": false,
           "tooltip": {
             "value_type": "cumulative",
-            "query_as_alias": true
+            "query_as_alias": true,
+            "shared": false
           },
           "targets": [
             {
@@ -86,28 +88,20 @@
             "enable": false
           },
           "seriesOverrides": []
-        }
-      ]
-    },
-    {
-      "title": "New row",
-      "height": "250px",
-      "editable": true,
-      "collapse": false,
-      "panels": [
+        },
         {
           "error": false,
-          "span": 12,
+          "span": 6,
           "editable": true,
           "type": "graph",
-          "id": 5,
+          "id": 6,
           "datasource": null,
           "renderer": "flot",
           "x-axis": true,
           "y-axis": true,
           "scale": 1,
           "y_formats": [
-            "short",
+            "ms",
             "short"
           ],
           "grid": {
@@ -146,7 +140,8 @@
           "steppedLine": false,
           "tooltip": {
             "value_type": "cumulative",
-            "query_as_alias": true
+            "query_as_alias": true,
+            "shared": false
           },
           "targets": [
             {
@@ -161,7 +156,137 @@
             "RTT in ms": "#EAB839"
           },
           "seriesOverrides": [],
-          "title": "DescribeVolumes Request Length"
+          "title": "DescribeVolumes Response time",
+          "links": []
+        }
+      ]
+    },
+    {
+      "title": "New row",
+      "height": "250px",
+      "editable": true,
+      "collapse": false,
+      "panels": [
+        {
+          "title": "Instance Operation Time to Execute",
+          "error": false,
+          "span": 6,
+          "editable": true,
+          "type": "graph",
+          "id": 7,
+          "datasource": null,
+          "renderer": "flot",
+          "x-axis": true,
+          "y-axis": true,
+          "y_formats": [
+            "ms",
+            "short"
+          ],
+          "grid": {
+            "leftMax": null,
+            "rightMax": null,
+            "leftMin": null,
+            "rightMin": null,
+            "threshold1": null,
+            "threshold2": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "lines": true,
+          "fill": 0,
+          "linewidth": 1,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "percentage": false,
+          "legend": {
+            "show": true,
+            "values": false,
+            "min": false,
+            "max": false,
+            "current": false,
+            "total": false,
+            "avg": false
+          },
+          "nullPointMode": "connected",
+          "steppedLine": false,
+          "tooltip": {
+            "value_type": "cumulative",
+            "shared": false
+          },
+          "targets": [
+            {
+              "function": "mean",
+              "column": "total_time",
+              "series": "/run_instance|terminate_instances/",
+              "query": "select mean(total_time) from /run_instance|terminate_instances/ where $timeFilter group by time($interval) order asc",
+              "alias": ""
+            }
+          ],
+          "aliasColors": {},
+          "seriesOverrides": [],
+          "links": []
+        },
+        {
+          "title": "Create Volume time",
+          "error": false,
+          "span": 6,
+          "editable": true,
+          "type": "graph",
+          "id": 8,
+          "datasource": null,
+          "renderer": "flot",
+          "x-axis": true,
+          "y-axis": true,
+          "y_formats": [
+            "ms",
+            "short"
+          ],
+          "grid": {
+            "leftMax": null,
+            "rightMax": null,
+            "leftMin": null,
+            "rightMin": null,
+            "threshold1": null,
+            "threshold2": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "lines": true,
+          "fill": 0,
+          "linewidth": 1,
+          "points": false,
+          "pointradius": 5,
+          "bars": false,
+          "stack": false,
+          "percentage": false,
+          "legend": {
+            "show": true,
+            "values": false,
+            "min": false,
+            "max": false,
+            "current": false,
+            "total": false,
+            "avg": false
+          },
+          "nullPointMode": "connected",
+          "steppedLine": false,
+          "tooltip": {
+            "value_type": "cumulative",
+            "shared": false
+          },
+          "targets": [
+            {
+              "function": "mean",
+              "column": "total_time",
+              "series": "/create_volumes|delete_volumes/",
+              "query": "select mean(total_time) from /create_volumes|delete_volumes/ where $timeFilter group by time($interval) order asc"
+            }
+          ],
+          "aliasColors": {},
+          "seriesOverrides": [],
+          "links": []
         }
       ]
     }
@@ -211,5 +336,6 @@
     "enable": false
   },
   "refresh": "5s",
-  "version": 6
+  "version": 6,
+  "hideAllLegends": false
 }

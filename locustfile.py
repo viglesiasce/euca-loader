@@ -107,7 +107,7 @@ class AverageUser(EC2Create, EC2Read, S3Operations):
 class EucaopsUser(EucaopsLocust):
     min_wait = 1
     max_wait = 1
-    task_set = EC2Read
+    task_set = AverageUser
 
     def on_start(self):
         pass
