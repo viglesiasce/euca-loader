@@ -16,6 +16,8 @@ class EucaopsClient(Eucaops):
         :param kwargs: keyword args passed to Eucaops constructor
         """
         super(EucaopsClient, self).__init__(*args, **kwargs)
+        self.authorize_group_by_name()
+        self.authorize_group_by_name(protocol="icmp", port=-1)
         self.db = InfluxDBClient(os.getenv('MASTER_IP', 'localhost'), 8086, 'admin', 'admin', 'locust')
 
     def time_operation(self, method, *args, **kwargs):
