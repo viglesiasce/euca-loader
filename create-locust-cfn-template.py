@@ -11,6 +11,12 @@ image_id = template.add_parameter(Parameter(
     Description="Image ID to run instance with",
     Type="String"
 ))
+instance_type = template.add_parameter(Parameter(
+    "InstanceType",
+    Description="Instance type for instances",
+    Default="m1.large",
+    Type="String"
+))
 keyname_param = template.add_parameter(Parameter(
     "KeyName",
     Description="Name of an existing EC2 KeyPair to enable SSH "
@@ -40,7 +46,7 @@ eutester_branch = template.add_parameter(Parameter(
     "EutesterBranch",
     Description="Eutester branch to install",
     Type="String",
-    Default="testing"
+    Default="maint-4.1"
 ))
 eutester_repo = template.add_parameter(Parameter(
     "EutesterRepo",
@@ -61,15 +67,12 @@ grafana_config = template.add_parameter(Parameter(
     Default="https://raw.githubusercontent.com/viglesiasce/euca-loader/master/grafana-config.js"
 ))
 
-shared_userdata = Join("", ["""#!/bin/bash
+shared_userdata = Join("", ["""#!/bin/bash -xe
 LOG_FILE=/mnt/locust.log
-mkfs.ext4 -F /dev/vdb
-mount /dev/vdb /mnt/
-yum install -y python-setuptools python-devel python-pip git gcc unzip ntp gcc-c++
+apt-get install -y python-setuptools python-dev git python-pip gcc unzip ntp apache2
 ntpdate -u pool.ntp.org
-pip install locustio
-pip install pyzmq
-pip install influxdb
+easy_install locustio
+easy_install influxdb
 pushd /root
 rm -rf eutester
 git clone """, Ref(eutester_repo), """ -b """, Ref(eutester_branch), """
@@ -88,22 +91,22 @@ popd
 
 master_userdata = Join("", [shared_userdata,
 '''
-yum install -y http://s3.amazonaws.com/influxdb/influxdb-latest-1.x86_64.rpm
-yum install -y wget httpd unzip
-wget http://grafanarel.s3.amazonaws.com/grafana-1.8.1.zip
-unzip grafana-1.8.1.zip
-cp -a grafana-1.8.1/* /var/www/html/
+wget http://get.influxdb.org/influxdb_0.8.8_amd64.deb
+dpkg -i influxdb_0.8.8_amd64.deb
+GRAFANA_VERSION=1.9.1
+wget http://grafanarel.s3.amazonaws.com/grafana-$GRAFANA_VERSION.zip
+unzip grafana-$GRAFANA_VERSION.zip
+cp -a grafana-$GRAFANA_VERSION/* /var/www/html/
 curl ''', Ref(grafana_config), ''' > /var/www/html/config.js
 pub_ip=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
 sed -i "s/localhost/$pub_ip/g"  /var/www/html/config.js
 curl ''', Ref(default_dashboard), ''' >  /var/www/html/app/dashboards/locust.json
-service httpd start
+service apache2 start
 nohup /usr/bin/influxdb -pidfile /opt/influxdb/shared/influxdb.pid -config /opt/influxdb/shared/config.toml &
-chkconfig influxdb on
 sleep 30
 cat > setup_influxdb.py <<EOF
-from influxdb import client as influxdb
-db = influxdb.InfluxDBClient()
+from influxdb.influxdb08 import InfluxDBClient
+db = InfluxDBClient()
 db.create_database('locust')
 db.create_database('grafana')
 db.add_cluster_admin('admin','admin')
@@ -114,10 +117,11 @@ locust --master --logfile=$LOG_FILE
 master = template.add_resource(ec2.Instance(
     "LocustMaster",
     ImageId=Ref(image_id),
-    InstanceType="m1.small",
+    InstanceType=Ref(instance_type),
     KeyName=Ref(keyname_param),
     SecurityGroups=["default"],
-    UserData=Base64(master_userdata)
+    UserData=Base64(master_userdata),
+    Tags=[ec2.Tag("Name", "Locust Master")]
 ))
 
 slave_userdata = Base64(Join("", [shared_userdata,
@@ -128,12 +132,15 @@ locust --slave --master-host=$MASTER_IP --logfile=$LOG_FILE
 
 slave_lc  = template.add_resource(autoscaling.LaunchConfiguration("LocustSlave",
                                                                   ImageId=Ref(image_id),
-                                                                  InstanceType="m1.small",
+                                                                  InstanceType=Ref(instance_type),
                                                                   UserData=slave_userdata,
                                                                   KeyName=Ref(keyname_param)))
 
 slave_asg = template.add_resource(autoscaling.AutoScalingGroup("LocustSlaveASG", AvailabilityZones=[GetAtt(master, "AvailabilityZone")],
                                                                LaunchConfigurationName=Ref(slave_lc), MaxSize="5",
+                                                               Tags=[
+                                                                       autoscaling.Tag("Name", "Locust Slave", True)
+                                                                   ],
                                                                DesiredCapacity=Ref(desired_capacity),
                                                                MinSize="1"))
 
