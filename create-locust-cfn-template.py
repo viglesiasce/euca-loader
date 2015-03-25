@@ -114,12 +114,40 @@ EOF
 python setup_influxdb.py
 locust --master --logfile=$LOG_FILE
 '''])
+
+instance_sg = template.add_resource(
+        ec2.SecurityGroup(
+            "LocustSecurityGroup",
+            GroupDescription="Enable Locust and Grafana access on the inbound port",
+            SecurityGroupIngress=[
+                ec2.SecurityGroupRule(
+                    IpProtocol="tcp",
+                    FromPort="8083",
+                    ToPort="8089",
+                    CidrIp="0.0.0.0/0",
+                ),
+                ec2.SecurityGroupRule(
+                    IpProtocol="tcp",
+                    FromPort="80",
+                    ToPort="80",
+                    CidrIp="0.0.0.0/0",
+                ),
+                ec2.SecurityGroupRule(
+                    IpProtocol="tcp",
+                    FromPort="22",
+                    ToPort="22",
+                    CidrIp="0.0.0.0/0",
+                )
+            ]
+        )
+    )
+
 master = template.add_resource(ec2.Instance(
     "LocustMaster",
     ImageId=Ref(image_id),
     InstanceType=Ref(instance_type),
     KeyName=Ref(keyname_param),
-    SecurityGroups=["default"],
+    SecurityGroups=[Ref(instance_sg)],
     UserData=Base64(master_userdata),
     Tags=[ec2.Tag("Name", "Locust Master")]
 ))
@@ -134,7 +162,8 @@ slave_lc  = template.add_resource(autoscaling.LaunchConfiguration("LocustSlave",
                                                                   ImageId=Ref(image_id),
                                                                   InstanceType=Ref(instance_type),
                                                                   UserData=slave_userdata,
-                                                                  KeyName=Ref(keyname_param)))
+                                                                  KeyName=Ref(keyname_param), 
+                                                                  SecurityGroups=[Ref(instance_sg)]))
 
 slave_asg = template.add_resource(autoscaling.AutoScalingGroup("LocustSlaveASG", AvailabilityZones=[GetAtt(master, "AvailabilityZone")],
                                                                LaunchConfigurationName=Ref(slave_lc), MaxSize="5",
