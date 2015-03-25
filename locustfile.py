@@ -2,7 +2,7 @@ import os
 import time
 from eucaops import Eucaops
 from locust import Locust, events, TaskSet, task
-from influxdb import client as influxdb
+from influxdb.influxdb08 import InfluxDBClient
 
 class EucaopsClient(Eucaops):
     def __init__(self, *args, **kwargs):
@@ -16,7 +16,7 @@ class EucaopsClient(Eucaops):
         :param kwargs: keyword args passed to Eucaops constructor
         """
         super(EucaopsClient, self).__init__(*args, **kwargs)
-        self.db = influxdb.InfluxDBClient(os.getenv('MASTER_IP', 'localhost'), 8086, 'admin', 'admin', 'locust')
+        self.db = InfluxDBClient(os.getenv('MASTER_IP', 'localhost'), 8086, 'admin', 'admin', 'locust')
 
     def time_operation(self, method, *args, **kwargs):
         start_time = time.time()
