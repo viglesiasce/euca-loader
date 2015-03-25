@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from troposphere import FindInMap, Base64, Output, GetAtt
 from troposphere import Parameter, Ref, Template, Join
+from troposphere.cloudformation import WaitCondition, WaitConditionHandle
 import troposphere.ec2 as ec2
 import troposphere.autoscaling as autoscaling
 
@@ -67,7 +68,35 @@ grafana_config = template.add_parameter(Parameter(
     Default="https://raw.githubusercontent.com/viglesiasce/euca-loader/master/grafana-config.js"
 ))
 
+master_handle = template.add_resource(WaitConditionHandle("MasterHandle"))
+master_complete_condition = template.add_resource(
+    WaitCondition(
+        "MasterComplete",
+        Handle=Ref(master_handle),
+        Timeout="2400"
+    )
+)
+
+slave_handle = template.add_resource(WaitConditionHandle("SlaveHandle"))
+slave_complete_condition = template.add_resource(
+    WaitCondition(
+        "SlaveComplete",
+        Handle=Ref(slave_handle),
+        Timeout="2400",
+        Count=Ref(desired_capacity)
+    )
+)
+
 shared_userdata = Join("", ["""#!/bin/bash -xe
+INSTANCE_ID=`curl http://169.254.169.254/latest/meta-data/instance-id`
+cat > /tmp/instance-handle-data <<EOF
+{
+ "Status" : "SUCCESS",
+ "Reason" : "Configuration Complete",
+ "UniqueId" : "$INSTANCE_ID",
+ "Data" : "Application has completed configuration."
+}
+EOF
 LOG_FILE=/mnt/locust.log
 apt-get install -y python-setuptools python-dev git python-pip gcc unzip ntp apache2
 ntpdate -u pool.ntp.org
@@ -112,8 +141,8 @@ db.create_database('grafana')
 db.add_cluster_admin('admin','admin')
 EOF
 python setup_influxdb.py
-locust --master --logfile=$LOG_FILE
-'''])
+locust --master --logfile=$LOG_FILE &
+curl -T /tmp/instance-handle-data "''', Ref(master_handle)  ,'''"'''])
 
 instance_sg = template.add_resource(
         ec2.SecurityGroup(
@@ -153,11 +182,10 @@ master = template.add_resource(ec2.Instance(
 ))
 
 slave_userdata = Base64(Join("", [shared_userdata,
-"""sleep 20;
-export MASTER_IP=""", GetAtt(master, "PublicIp"), """
-locust --slave --master-host=$MASTER_IP --logfile=$LOG_FILE
-"""]))
-
+'''sleep 20;
+export MASTER_IP=''', GetAtt(master, "PublicIp"), '''
+locust --slave --master-host=$MASTER_IP --logfile=$LOG_FILE &
+curl -T /tmp/instance-handle-data "''', Ref(slave_handle)  ,'''"''']))
 slave_lc  = template.add_resource(autoscaling.LaunchConfiguration("LocustSlave",
                                                                   ImageId=Ref(image_id),
                                                                   InstanceType=Ref(instance_type),
