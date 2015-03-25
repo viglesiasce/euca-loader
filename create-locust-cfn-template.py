@@ -204,7 +204,7 @@ slave_asg = template.add_resource(autoscaling.AutoScalingGroup("LocustSlaveASG",
 template.add_output(Output(
     "WebPortalUrl",
     Description="Web address for Locust Master",
-    Value=Join("", ["Login here to start your test: http://", GetAtt(master, "PublicDnsName"), ":8089"])
+    Value=Join("", ["Login here to start your test: http://", GetAtt(master, "PublicIp"), ":8089"])
 ))
 template.add_output(Output(
     "ScriptURL",
@@ -214,7 +214,7 @@ template.add_output(Output(
 template.add_output(Output(
     "GrafanaURL",
     Description="Web address for Real Time Graphs",
-    Value=Join("", ["Login here for real time graphs: http://", GetAtt(master, "PublicDnsName")])
+    Value=Join("", ["Login here for real time graphs: http://", GetAtt(master, "PublicIp")])
 ))
 
 print(template.to_json())
