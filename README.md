@@ -16,7 +16,7 @@ How To
 - Check that the stack is complete by doing ```euform-describe-stacks```
 - The system is now bootstrapping
 - In the describe-stacks output you will see a line with the WebPortalUrl, this is where you can start your load test.
-- Once at the web portal make sure that the slave count in the top right reach at least 1
+- Once at the web portal make sure that the slave count in the top right reaches at least 1
 - Enter the number of total concurrent users youd like to simulate and how quickly youd like them to spawn, then hit the "Start swarming" button
 - Locust will then show you the results of your requests. In order to see real time graphs of operation timings, run  ```euform-describe-stacks``` and point your browser to the GrafanaURL
 
