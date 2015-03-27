@@ -64,9 +64,10 @@ class EC2Read(TaskSet):
     def get_instances(self):
         self.client.time_operation(self.client.get_instances)
 
-    @task(10)
-    def get_volumes(self):
-        self.client.time_operation(self.client.get_volumes)
+    # Removed due to EUCA-10692
+    #@task(2)
+    #def get_volumes(self):
+    #    self.client.time_operation(self.client.get_volumes)
 
 
 class EC2Create(TaskSet):
@@ -107,8 +108,8 @@ class AverageUser(EC2Create, EC2Read, S3Operations):
 
 
 class EucaopsUser(EucaopsLocust):
-    min_wait = 1
-    max_wait = 1
+    min_wait = 10
+    max_wait = 60
     task_set = AverageUser
 
     def on_start(self):
