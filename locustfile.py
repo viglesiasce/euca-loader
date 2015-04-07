@@ -64,10 +64,9 @@ class EC2Read(TaskSet):
     def get_instances(self):
         self.client.time_operation(self.client.get_instances)
 
-    # Removed due to EUCA-10692
-    #@task(2)
-    #def get_volumes(self):
-    #    self.client.time_operation(self.client.get_volumes)
+    @task(2)
+    def get_volumes(self):
+        self.client.time_operation(self.client.get_volumes)
 
 
 class EC2Create(TaskSet):
