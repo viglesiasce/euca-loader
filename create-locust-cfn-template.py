@@ -47,7 +47,7 @@ eutester_branch = template.add_parameter(Parameter(
     "EutesterBranch",
     Description="Eutester branch to install",
     Type="String",
-    Default="maint-4.1"
+    Default="master"
 ))
 eutester_repo = template.add_parameter(Parameter(
     "EutesterRepo",
