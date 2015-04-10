@@ -88,6 +88,7 @@ slave_complete_condition = template.add_resource(
 )
 
 shared_userdata = Join("", ["""#!/bin/bash -xe
+apt-get update
 INSTANCE_ID=`curl http://169.254.169.254/latest/meta-data/instance-id`
 cat > /tmp/instance-handle-data <<EOF
 {
