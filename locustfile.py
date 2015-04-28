@@ -77,16 +77,16 @@ class EC2Create(TaskSet):
         self.client.time_operation(self.client.terminate_instances, reservation)
 
     @task(1)
+    def allocate_address(self):
+        address = self.client.time_operation(self.client.allocate_address)
+        self.client.time_operation(self.client.release_address, address)
+        
+class EBSCreate(TaskSet):
+    @task(1)
     def create_volumes(self):
         volumes = self.client.time_operation(self.client.create_volumes,
                                              zone="one")
         self.client.time_operation(self.client.delete_volumes, volumes)
-
-    @task(1)
-    def allocate_address(self):
-        address = self.client.time_operation(self.client.allocate_address)
-        self.client.time_operation(self.client.release_address, address)
-
 
 class S3Operations(TaskSet):
     @task(10)
