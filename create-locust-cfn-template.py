@@ -100,6 +100,7 @@ cat > /tmp/instance-handle-data <<EOF
 EOF
 LOG_FILE=/mnt/locust.log
 apt-get install -y python-setuptools python-dev git python-pip gcc unzip ntp apache2
+wget https://bootstrap.pypa.io/ez_setup.py -O - | python
 ntpdate -u pool.ntp.org
 easy_install locustio
 easy_install influxdb
@@ -191,7 +192,7 @@ slave_lc  = template.add_resource(autoscaling.LaunchConfiguration("LocustSlave",
                                                                   ImageId=Ref(image_id),
                                                                   InstanceType=Ref(instance_type),
                                                                   UserData=slave_userdata,
-                                                                  KeyName=Ref(keyname_param), 
+                                                                  KeyName=Ref(keyname_param),
                                                                   SecurityGroups=[Ref(instance_sg)]))
 
 slave_asg = template.add_resource(autoscaling.AutoScalingGroup("LocustSlaveASG", AvailabilityZones=[GetAtt(master, "AvailabilityZone")],
